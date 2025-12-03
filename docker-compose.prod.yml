@@ -1,0 +1,43 @@
+version: '3.8'
+
+# Production Docker Compose with environment variables
+# Copy this file and rename to docker-compose.override.yml for production
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: vps-monitor-backend
+    restart: always
+    privileged: true
+    network_mode: host
+    environment:
+      - PYTHONUNBUFFERED=1
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        - NEXT_PUBLIC_API_URL=${API_URL:-http://localhost:3001}
+        - NEXT_PUBLIC_WS_URL=${WS_URL:-ws://localhost:3001}
+    container_name: vps-monitor-frontend
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=${API_URL:-http://localhost:3001}
+      - NEXT_PUBLIC_WS_URL=${WS_URL:-ws://localhost:3001}
+    depends_on:
+      - backend
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
