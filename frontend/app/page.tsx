@@ -98,7 +98,10 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
 
   const connectWebSocket = useCallback(() => {
-    const wsUrl = process.env.NEXT_PUBLIC_WS_URL || 'ws://localhost:3001';
+    // Dynamically determine WebSocket URL based on current browser location
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const host = window.location.hostname;
+    const wsUrl = process.env.NEXT_PUBLIC_WS_URL || `${protocol}//${host}:3001`;
     const ws = new WebSocket(`${wsUrl}/ws`);
 
     ws.onopen = () => {
