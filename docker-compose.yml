@@ -16,6 +16,8 @@ services:
       - PYTHONUNBUFFERED=1
     privileged: true
     pid: host
+    security_opt:
+      - apparmor:unconfined
     networks:
       - vps-monitor
 
